@@ -290,7 +290,6 @@ export function ChatInterface() {
     <>
       <div 
         className="fixed inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-25"
-        style={{ backgroundImage: 'url(/hero.webp)' }}
       />
       <div className="h-screen flex relative z-10">
         {/* Left Sidebar - Controls (20%) */}
