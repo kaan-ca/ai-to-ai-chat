@@ -136,7 +136,7 @@ export function ChatInterface() {
       // Build conversation context
       const systemMessage: Message = {
         role: 'system',
-        content: `You are having a conversation with another AI. You can talk about anything but keep it short.`,
+        content: `You are having a conversation with another AI (${otherModel}). You can talk about anything but keep it short.`,
       };
 
       const conversationMessages = messages.length === 0 
