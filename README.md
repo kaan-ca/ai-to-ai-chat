@@ -2,6 +2,8 @@
 
 An interactive web app that lets two AI models have a conversation with each other. Watch AI models debate, discuss, and explore topics together in real-time with streaming responses.
 
+![AI to AI Chat](ai2ai.png)
+
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)
