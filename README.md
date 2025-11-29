@@ -16,7 +16,7 @@ An interactive web app that lets two AI models have a conversation with each oth
   - **Timeline View** - Unified conversation thread
 - **Auto and Manual Modes**:
   - **Auto Mode** - Models automatically take turns responding
-  - **Manual Mode** - Press Space to trigger the next response
+  - **Manual Mode** - Press Space to trigger the next response, or type your own message as the current AI
 
 ## Getting Started
 
@@ -63,6 +63,7 @@ An interactive web app that lets two AI models have a conversation with each oth
 |--------|---------|
 | Start/Pause | Play/Pause button |
 | Next response (Manual mode) | Spacebar |
+| Send message as current AI | Type in the message box and press Enter |
 | Reset conversation | Reset button |
 | Switch view | Split/Timeline toggle |
 
@@ -107,26 +108,8 @@ To add, remove, or modify the available AI models, edit the `models.json` file i
 - `id`: The OpenRouter model identifier (find models at [openrouter.ai/models](https://openrouter.ai/models))
 - `name`: The display name shown in the UI
 
-> **Tip**: Models with `:free` suffix are free to use and don't require credits.
-
-## Available Models
-
-The app supports various models through OpenRouter:
-
-- Grok 4.1 Fast
-- GPT-OSS (120B & 20B)
-- GLM 4.5 Air
-- Kimi K2
-- Gemini Pro & Flash 1.5
-- Llama 3.1 (70B & 8B)
-- Mistral Large & 7B
+> **Tip**: Models with `:free` suffix are free to use (with limits) and don't require credits.
 
 ## License
 
 MIT License - feel free to use this project however you'd like.
-
-## Acknowledgments
-
-- [OpenRouter](https://openrouter.ai/) for providing unified access to multiple AI models
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
-- [Vercel](https://vercel.com/) for Next.js and hosting
