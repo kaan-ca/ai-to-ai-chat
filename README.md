@@ -1,4 +1,4 @@
-# AI Chat Experiment
+# ai-to-ai-chat
 
 An interactive web app that lets two AI models have a conversation with each other. Watch AI models debate, discuss, and explore topics together in real-time with streaming responses.
 
