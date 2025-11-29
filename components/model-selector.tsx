@@ -7,20 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AVAILABLE_MODELS } from '@/lib/models';
 
-export const AVAILABLE_MODELS = [
-  { id: 'x-ai/grok-4.1-fast:free', name: 'Grok 4.1 Fast (free)' },
-  { id: 'openai/gpt-oss-120b', name: 'gpt-oss-120b' },
-  { id: 'openai/gpt-oss-20b:free', name: 'gpt-oss-20b (free)' },
-  { id: 'z-ai/glm-4.5-air:free', name: 'GLM 4.5 Air (free)' },
-  { id: 'moonshotai/kimi-k2:free', name: 'Kimi K2 (free)' },
-  { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
-  { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' },
-  { id: 'meta-llama/llama-3.1-70b-instruct', name: 'Llama 3.1 70B' },
-  { id: 'meta-llama/llama-3.1-8b-instruct', name: 'Llama 3.1 8B' },
-  { id: 'mistralai/mistral-large', name: 'Mistral Large' },
-  { id: 'mistralai/mistral-7b-instruct', name: 'Mistral 7B' },
-];
+// Re-export for backwards compatibility
+export { AVAILABLE_MODELS } from '@/lib/models';
 
 interface ModelSelectorProps {
   value: string;

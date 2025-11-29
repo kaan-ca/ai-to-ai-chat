@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ModelSelector, AVAILABLE_MODELS } from '@/components/model-selector';
+import { ModelSelector } from '@/components/model-selector';
+import { AVAILABLE_MODELS, getModelName } from '@/lib/models';
 import { Play, Pause, RotateCcw, Loader2, Send, Columns, MessageSquare } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -283,10 +284,6 @@ export function ChatInterface() {
     setMessages(prev => [...prev, newMessage]);
     setCurrentTurn(currentTurn === 1 ? 2 : 1);
     setManualMessage('');
-  };
-
-  const getModelName = (modelId: string) => {
-    return AVAILABLE_MODELS.find(m => m.id === modelId)?.name || modelId;
   };
 
   return (

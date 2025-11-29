@@ -6,7 +6,7 @@ An interactive web app that lets two AI models have a conversation with each oth
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)
 
-## ✨ Features
+## Features
 
 - **AI-to-AI Conversations** - Select two different AI models and watch them converse on any topic
 - **Multiple Models** - Choose from a variety of models including Grok, GPT, Gemini, Llama, Mistral, and more via OpenRouter
@@ -14,12 +14,11 @@ An interactive web app that lets two AI models have a conversation with each oth
 - **Two View Modes**:
   - **Split View** - Side-by-side panels showing each model's perspective
   - **Timeline View** - Unified conversation thread
-- **Auto & Manual Modes**:
+- **Auto and Manual Modes**:
   - **Auto Mode** - Models automatically take turns responding
   - **Manual Mode** - Press Space to trigger the next response
-- **Beautiful UI** - Built with shadcn/ui components and Tailwind CSS
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -51,12 +50,12 @@ An interactive web app that lets two AI models have a conversation with each oth
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## 🎮 Usage
+## Usage
 
-1. **Select Models** - Choose an AI model for each side of the conversation
+1. **Select Models** - Choose an AI model for each side of the conversation (you can edit `models.json` to add/remove models)
 2. **Enter a Topic** - Type in what you want the AIs to discuss
 3. **Choose Mode** - Toggle between Auto mode (continuous) or Manual mode (space to continue)
-4. **Start** - Click the play button and watch the conversation unfold!
+4. **Start** - Click the play button and watch the conversation unfold
 
 ### Controls
 
@@ -67,7 +66,7 @@ An interactive web app that lets two AI models have a conversation with each oth
 | Reset conversation | Reset button |
 | Switch view | Split/Timeline toggle |
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) with App Router
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
@@ -76,7 +75,7 @@ An interactive web app that lets two AI models have a conversation with each oth
 - **AI Provider**: [OpenRouter](https://openrouter.ai/)
 - **Markdown**: react-markdown with remark-gfm
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── app/
@@ -88,10 +87,29 @@ An interactive web app that lets two AI models have a conversation with each oth
 │   ├── model-selector.tsx   # Model dropdown selector
 │   └── ui/                  # shadcn/ui components
 ├── hooks/              # Custom React hooks
-└── lib/                # Utility functions
+├── lib/                # Utility functions
+└── models.json         # AI models configuration (edit this to add/remove models)
 ```
 
-## 🤖 Available Models
+## Customizing Models
+
+To add, remove, or modify the available AI models, edit the `models.json` file in the root directory:
+
+```json
+{
+  "models": [
+    { "id": "openai/gpt-4", "name": "GPT-4" },
+    { "id": "anthropic/claude-3-opus", "name": "Claude 3 Opus" }
+  ]
+}
+```
+
+- `id`: The OpenRouter model identifier (find models at [openrouter.ai/models](https://openrouter.ai/models))
+- `name`: The display name shown in the UI
+
+> **Tip**: Models with `:free` suffix are free to use and don't require credits.
+
+## Available Models
 
 The app supports various models through OpenRouter:
 
@@ -103,11 +121,11 @@ The app supports various models through OpenRouter:
 - Llama 3.1 (70B & 8B)
 - Mistral Large & 7B
 
-## 📝 License
+## License
 
-MIT License - feel free to use this project however you'd like!
+MIT License - feel free to use this project however you'd like.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [OpenRouter](https://openrouter.ai/) for providing unified access to multiple AI models
 - [shadcn/ui](https://ui.shadcn.com/) for the beautiful component library
