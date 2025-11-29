@@ -29,8 +29,7 @@ An interactive web app that lets two AI models have a conversation with each oth
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/aichatexp.git
-   cd aichatexp
+   git clone https://github.com/kaan-ca/ai-to-ai-chat
    ```
 
 2. Install dependencies:
@@ -99,8 +98,8 @@ To add, remove, or modify the available AI models, edit the `models.json` file i
 ```json
 {
   "models": [
-    { "id": "openai/gpt-4", "name": "GPT-4" },
-    { "id": "anthropic/claude-3-opus", "name": "Claude 3 Opus" }
+    { "id": "openai/gpt-5.1", "name": "GPT-5.1" },
+    { "id": "anthropic/claude-4.5-opus", "name": "Claude 4.5 Opus" }
   ]
 }
 ```
