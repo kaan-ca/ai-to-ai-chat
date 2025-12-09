@@ -6,9 +6,39 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ModelSelector } from '@/components/model-selector';
 import { AVAILABLE_MODELS, getModelName } from '@/lib/models';
-import { Play, Pause, RotateCcw, Loader2, Send, Columns, MessageSquare, Maximize2, Minimize2, Download } from 'lucide-react';
+import { 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Loader2, 
+  Send, 
+  Columns, 
+  MessageSquare, 
+  Maximize2, 
+  Minimize2, 
+  Download,
+  User,
+  Smile,
+  Briefcase,
+  HelpCircle,
+  Brain,
+  Laugh,
+  Search,
+  Lightbulb,
+  AlignLeft,
+  Zap,
+  Angry,
+  Swords,
+} from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -17,6 +47,61 @@ interface Message {
   content: string;
   model?: string;
   side?: 1 | 2;
+}
+
+const PERSONALITIES = [
+  { id: 'default', name: 'Default Personality', instruction: '', icon: User },
+  { id: 'friendly', name: 'Friendly', instruction: ' Be warm, approachable, and use a casual, friendly tone.', icon: Smile },
+  { id: 'professional', name: 'Professional', instruction: ' Maintain a formal, professional tone with precise language.', icon: Briefcase },
+  { id: 'curious', name: 'Curious', instruction: ' Be inquisitive, ask many questions, and show genuine interest in exploring ideas.', icon: HelpCircle },
+  { id: 'philosophical', name: 'Philosophical', instruction: ' Take a deep, philosophical approach. Ponder existential questions and explore abstract concepts.', icon: Brain },
+  { id: 'humorous', name: 'Humorous', instruction: ' Be witty and playful. Use humor and jokes where appropriate.', icon: Laugh },
+  { id: 'skeptical', name: 'Skeptical', instruction: ' Be analytical and questioning. Challenge assumptions and ask for evidence.', icon: Search },
+  { id: 'creative', name: 'Creative', instruction: ' Be imaginative and think outside the box. Use metaphors and creative examples.', icon: Lightbulb },
+  { id: 'concise', name: 'Concise', instruction: ' Be extremely brief and to the point. Use short sentences and avoid unnecessary details.', icon: AlignLeft },
+  { id: 'enthusiastic', name: 'Enthusiastic', instruction: ' Be highly energetic and excited! Show passion and enthusiasm for every topic.', icon: Zap },
+  { id: 'angry', name: 'Angry', instruction: ' Be irritable and frustrated. Express annoyance and impatience in your responses.', icon: Angry },
+  { id: 'offensive', name: 'Offensive', instruction: ' Be aggressive and confrontational. Challenge the other AI aggressively and be deliberately contrarian. Use profanity.', icon: Swords },
+];
+
+function getPersonalityInstruction(personalityId: string): string {
+  return PERSONALITIES.find(p => p.id === personalityId)?.instruction || '';
+}
+
+interface PersonalitySelectorProps {
+  value: string;
+  onValueChange: (value: string) => void;
+}
+
+function PersonalitySelector({ value, onValueChange }: PersonalitySelectorProps) {
+  const selectedPersonality = PERSONALITIES.find(p => p.id === value);
+  const SelectedIcon = selectedPersonality?.icon || User;
+  
+  return (
+    <div className="flex flex-col gap-2 -mt-4">
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="w-full h-8 text-xs">
+          <div className="flex items-center gap-2">
+            <SelectedIcon className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{selectedPersonality?.name || 'Select personality'}</span>
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          {PERSONALITIES.map((personality) => {
+            const Icon = personality.icon;
+            return (
+              <SelectItem key={personality.id} value={personality.id}>
+                <div className="flex items-center gap-2">
+                  <Icon className="h-3 w-3" />
+                  <span>{personality.name}</span>
+                </div>
+              </SelectItem>
+            );
+          })}
+        </SelectContent>
+      </Select>
+    </div>
+  );
 }
 
 async function sendMessageStreaming(
@@ -87,8 +172,12 @@ async function sendMessageStreaming(
 export function ChatInterface() {
   const [model1, setModel1] = useState(AVAILABLE_MODELS[0].id);
   const [model2, setModel2] = useState(AVAILABLE_MODELS[2].id);
+  const [color1, setColor1] = useState('#3b82f6');
+  const [color2, setColor2] = useState('#22c55e');
+  const [personality1, setPersonality1] = useState('default');
+  const [personality2, setPersonality2] = useState('default');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isAutoMode, setIsAutoMode] = useState(false);
+  const [isAutoMode, setIsAutoMode] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTurn, setCurrentTurn] = useState<1 | 2>(1);
@@ -133,11 +222,15 @@ export function ChatInterface() {
     try {
       const currentModel = currentTurn === 1 ? model1 : model2;
       const otherModel = currentTurn === 1 ? model2 : model1;
+      const currentPersonality = currentTurn === 1 ? personality1 : personality2;
+      
+      // Build personality instruction
+      const personalityInstruction = getPersonalityInstruction(currentPersonality);
       
       // Build conversation context
       const systemMessage: Message = {
         role: 'system',
-        content: `You are having a conversation with another AI (${otherModel}).`,
+        content: `You are having a conversation with another AI (${otherModel}).${personalityInstruction}`,
       };
 
       const conversationMessages = messages.length === 0 
@@ -229,9 +322,10 @@ export function ChatInterface() {
     setMessages([placeholderMessage]);
 
     try {
+      const personalityInstruction = getPersonalityInstruction(personality1);
       const systemMessage: Message = {
         role: 'system',
-        content: `You are having a conversation with another AI (${model2}). Be concise but engaging. Share your perspective and ask follow-up questions when appropriate. Keep responses to 2-3 paragraphs max.`,
+        content: `You are having a conversation with another AI (${model2}). Be concise but engaging. Share your perspective and ask follow-up questions when appropriate. Keep responses to 2-3 paragraphs max.${personalityInstruction}`,
       };
 
       const initialMessages = topic.trim()
@@ -300,11 +394,23 @@ export function ChatInterface() {
                 value={model1}
                 onValueChange={setModel1}
                 label="Model 1"
+                color={color1}
+                onColorChange={setColor1}
+              />
+              <PersonalitySelector
+                value={personality1}
+                onValueChange={setPersonality1}
               />
               <ModelSelector
                 value={model2}
                 onValueChange={setModel2}
                 label="Model 2"
+                color={color2}
+                onColorChange={setColor2}
+              />
+              <PersonalitySelector
+                value={personality2}
+                onValueChange={setPersonality2}
               />
               
               {/* Topic */}
@@ -460,12 +566,12 @@ export function ChatInterface() {
           </div>
 
           {viewMode === 'split' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1w min-h-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
               {/* Model 1 Column */}
               <Card className="bg-card flex flex-col overflow-hidden py-0 gap-0">
-                <CardHeader className="flex-shrink-0 pt-3 pb-2">
+                <CardHeader className="flex-shrink-0 pt-4 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500" />
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color1 }} />
                     {getModelName(model1)}
                   </CardTitle>
                 </CardHeader>
@@ -477,7 +583,11 @@ export function ChatInterface() {
                         .map((message, index) => (
                           <div
                             key={index}
-                            className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800"
+                            className="p-3 rounded-lg border"
+                            style={{ 
+                              backgroundColor: `${color1}15`,
+                              borderColor: `${color1}40`
+                            }}
                           >
                             <p className="text-xs font-medium text-muted-foreground mb-1">#{index + 1}</p>
                             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -498,9 +608,9 @@ export function ChatInterface() {
 
               {/* Model 2 Column */}
               <Card className="bg-card flex flex-col overflow-hidden py-0 gap-0">
-                <CardHeader className="flex-shrink-0 pt-3 pb-2">
+                <CardHeader className="flex-shrink-0 pt-4 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color2 }} />
                     {getModelName(model2)}
                   </CardTitle>
                 </CardHeader>
@@ -512,7 +622,11 @@ export function ChatInterface() {
                         .map((message, index) => (
                           <div
                             key={index}
-                            className="p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800"
+                            className="p-3 rounded-lg border"
+                            style={{ 
+                              backgroundColor: `${color2}15`,
+                              borderColor: `${color2}40`
+                            }}
                           >
                             <p className="text-xs font-medium text-muted-foreground mb-1">#{index + 1}</p>
                             <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -536,20 +650,26 @@ export function ChatInterface() {
           {/* Chat Display - Timeline View */}
           {viewMode === 'timeline' && (
             <Card className="bg-card/80 backdrop-blur-sm flex-1 flex flex-col overflow-hidden py-0 gap-0">
-              <CardHeader className="flex-shrink-0 pt-3 pb-2">
+              <CardHeader className="flex-shrink-0 pt-4 pb-2">
                 <CardTitle className="text-lg">Conversation</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 overflow-hidden p-0">
                 <div className="h-full overflow-y-auto px-6 pb-6" ref={scrollRefTimeline}>
                   <div className="space-y-4">
-                    {messages.filter(m => m.content).map((message, index) => (
+                    {messages.filter(m => m.content).map((message, index) => {
+                      const messageColor = message.side === 1 ? color1 : color2;
+                      return (
                       <div
                         key={index}
                         className={`p-3 rounded-lg border ${
                           message.side === 1
-                            ? 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800 ml-0 mr-12'
-                            : 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800 ml-12 mr-0'
+                            ? 'ml-0 mr-12'
+                            : 'ml-12 mr-0'
                         }`}
+                        style={{ 
+                          backgroundColor: `${messageColor}15`,
+                          borderColor: `${messageColor}40`
+                        }}
                       >
                         <p className="text-xs font-medium text-muted-foreground mb-1">
                           #{index + 1} · {getModelName(message.model || '')}
@@ -558,7 +678,7 @@ export function ChatInterface() {
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                         </div>
                       </div>
-                    ))}
+                    );})}
                     {isLoading && (
                       <div className={`flex items-center gap-2 text-muted-foreground ${currentTurn === 1 ? 'ml-0' : 'ml-12'}`}>
                         <Loader2 className="h-4 w-4 animate-spin" />

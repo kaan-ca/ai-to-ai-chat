@@ -13,7 +13,7 @@ const interTight = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-  title: "AI Chat Experiment",
+  title: "ai-to-ai-chat",
   description: "Make two LLMs talk to each other",
 };
 
