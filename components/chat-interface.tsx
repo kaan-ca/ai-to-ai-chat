@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ModelSelector } from '@/components/model-selector';
 import { AVAILABLE_MODELS, getModelName } from '@/lib/models';
-import { Play, Pause, RotateCcw, Loader2, Send, Columns, MessageSquare } from 'lucide-react';
+import { Play, Pause, RotateCcw, Loader2, Send, Columns, MessageSquare, Maximize2, Minimize2, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -96,6 +96,7 @@ export function ChatInterface() {
   const [error, setError] = useState<string | null>(null);
   const [manualMessage, setManualMessage] = useState('');
   const [viewMode, setViewMode] = useState<'split' | 'timeline'>('split');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const scrollRef1 = useRef<HTMLDivElement>(null);
   const scrollRef2 = useRef<HTMLDivElement>(null);
@@ -136,11 +137,11 @@ export function ChatInterface() {
       // Build conversation context
       const systemMessage: Message = {
         role: 'system',
-        content: `You are having a conversation with another AI (${otherModel}). You can talk about anything but keep it short.`,
+        content: `You are having a conversation with another AI (${otherModel}).`,
       };
 
       const conversationMessages = messages.length === 0 
-        ? [systemMessage, { role: 'user' as const, content: `Let's discuss: ${topic}. Please share your thoughts.` }]
+        ? [systemMessage, ...(topic.trim() ? [{ role: 'user' as const, content: `Let's discuss: ${topic}. Please share your thoughts.` }] : [{ role: 'user' as const, content: 'Start the conversation.' }])]
         : [systemMessage, ...messages.map(m => ({ 
             role: m.model === currentModel ? 'assistant' as const : 'user' as const, 
             content: m.content 
@@ -213,11 +214,6 @@ export function ChatInterface() {
   }, [isAutoMode, isRunning, isLoading, messages.length, getNextResponse]);
 
   const startConversation = async () => {
-    if (!topic.trim()) {
-      setError('Please enter a topic for the conversation');
-      return;
-    }
-
     setCurrentTurn(1);
     setIsRunning(true);
     setError(null);
@@ -238,10 +234,11 @@ export function ChatInterface() {
         content: `You are having a conversation with another AI (${model2}). Be concise but engaging. Share your perspective and ask follow-up questions when appropriate. Keep responses to 2-3 paragraphs max.`,
       };
 
-      const response = await sendMessageStreaming(model1, [
-        systemMessage,
-        { role: 'user', content: `Let's discuss: ${topic}. Please share your thoughts.` },
-      ], (chunk) => {
+      const initialMessages = topic.trim()
+        ? [systemMessage, { role: 'user' as const, content: `Let's discuss: ${topic}. Please share your thoughts.` }]
+        : [systemMessage, { role: 'user' as const, content: 'Start the conversation.' }];
+
+      const response = await sendMessageStreaming(model1, initialMessages, (chunk) => {
         setMessages([{ role: 'assistant', content: chunk, model: model1, side: 1 }]);
         scrollToBottom();
       });
@@ -293,7 +290,7 @@ export function ChatInterface() {
       />
       <div className="h-screen flex relative z-10">
         {/* Left Sidebar - Controls (20%) */}
-        <div className="w-[20%] min-w-[280px] p-4 pr-0 overflow-y-auto flex flex-col h-full">
+        <div className={`w-[20%] min-w-[280px] p-4 pr-0 overflow-y-auto flex flex-col h-full transition-all duration-300 ${isFullscreen ? 'hidden' : ''}`}>
           <h1 className="text-2xl mb-4 ml-1 font-[Inter_Tight]">ai-to-ai-chat</h1>
           
           <Card className="bg-card flex-1 flex flex-col">
@@ -320,7 +317,7 @@ export function ChatInterface() {
                   type="text"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  placeholder="Enter a discussion topic..."
+                  placeholder="(Optional)"
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   disabled={isRunning}
                 />
@@ -344,7 +341,7 @@ export function ChatInterface() {
               {/* Action Buttons */}
               <div className="flex flex-col gap-2">
                 {messages.length === 0 ? (
-                  <Button onClick={startConversation} disabled={isLoading || !topic.trim()} className="w-full">
+                  <Button onClick={startConversation} disabled={isLoading} className="w-full">
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
                     Start Conversation
                   </Button>
@@ -410,30 +407,63 @@ export function ChatInterface() {
         {/* Right Side - Chat (80%) */}
         <div className="flex-1 p-4 overflow-hidden flex flex-col">
           {/* View Mode Toggle */}
-          <div className="flex justify-start gap-2 mb-4">
-            <Button
-              variant={viewMode === 'split' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('split')}
-            >
-              <Columns className="mr-2 h-4 w-4" />
-              Split View
-            </Button>
-            <Button
-              variant={viewMode === 'timeline' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('timeline')}
-            >
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Timeline
-            </Button>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex gap-2">
+              <Button
+                variant={viewMode === 'split' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('split')}
+              >
+                <Columns className="mr-2 h-4 w-4" />
+                Split View
+              </Button>
+              <Button
+                variant={viewMode === 'timeline' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('timeline')}
+              >
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Timeline
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const chatContent = messages
+                    .filter(m => m.content)
+                    .map((m, i) => `#${i + 1} [${getModelName(m.model || '')}]\n${m.content}`)
+                    .join('\n\n---\n\n');
+                  const blob = new Blob([chatContent], { type: 'text/plain' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `chat-${new Date().toISOString().slice(0, 10)}.txt`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                disabled={messages.length === 0}
+                title="Download chat"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
 
           {viewMode === 'split' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1w min-h-0">
               {/* Model 1 Column */}
-              <Card className="bg-card flex flex-col overflow-hidden">
-                <CardHeader className="flex-shrink-0">
+              <Card className="bg-card flex flex-col overflow-hidden py-0 gap-0">
+                <CardHeader className="flex-shrink-0 pt-3 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-blue-500" />
                     {getModelName(model1)}
@@ -467,8 +497,8 @@ export function ChatInterface() {
               </Card>
 
               {/* Model 2 Column */}
-              <Card className="bg-card flex flex-col overflow-hidden">
-                <CardHeader className="flex-shrink-0">
+              <Card className="bg-card flex flex-col overflow-hidden py-0 gap-0">
+                <CardHeader className="flex-shrink-0 pt-3 pb-2">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                     {getModelName(model2)}
@@ -505,8 +535,8 @@ export function ChatInterface() {
 
           {/* Chat Display - Timeline View */}
           {viewMode === 'timeline' && (
-            <Card className="bg-card/80 backdrop-blur-sm flex-1 flex flex-col overflow-hidden">
-              <CardHeader className="flex-shrink-0">
+            <Card className="bg-card/80 backdrop-blur-sm flex-1 flex flex-col overflow-hidden py-0 gap-0">
+              <CardHeader className="flex-shrink-0 pt-3 pb-2">
                 <CardTitle className="text-lg">Conversation</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 overflow-hidden p-0">
